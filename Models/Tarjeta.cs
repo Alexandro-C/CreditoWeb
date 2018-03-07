@@ -1,6 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-
+using System.Text;
 namespace CreditoWeb.Models
 {
     public class Tarjeta
@@ -24,7 +24,39 @@ namespace CreditoWeb.Models
         /// como estamos dentro de la clase de tarjeta tenemos acceso a la propiedad TarjetaNum 
         private bool esValida()
         {
-            return false;
+            StringBuilder digitsOnly = new StringBuilder();
+            foreach(var c in TarjetaNum){
+                
+                if (Char.IsDigit(c)) digitsOnly.Append(c);
+            }
+
+            if (digitsOnly.Length > 18 || digitsOnly.Length < 15) return false;
+
+            int suma = 0;
+            int numero = 0;
+            int añadir = 0;
+            bool Patito = false;
+
+            for (int i = digitsOnly.Length - 1; i >= 0; i--)
+            {
+                numero = Int32.Parse(digitsOnly.ToString(i, 1));
+                if (Patito)
+                {
+                    añadir = numero * 2;
+                    if (añadir > 9)
+                    {
+                        añadir -= 9;
+                    }
+                }
+                else
+                {
+                    añadir = numero;
+                }
+                suma += añadir;
+                Patito = !Patito;
+            }
+            return (suma % 10) == 0;
+
         }
 
 
@@ -32,7 +64,18 @@ namespace CreditoWeb.Models
         /// como estamos dentro de la clase de tarjeta tenemos acceso a la propiedad TarjetaNum 
         private TipoTarjeta tipoDeTarjeta()
         {
-            return TipoTarjeta.NOVALIDA;
+            var opc=TipoTarjeta.NOVALIDA;
+            if((TarjetaNum[0]=='3'|| TarjetaNum[1]=='4')||(TarjetaNum[0]=='3'|| TarjetaNum[1]=='7')){
+                opc=TipoTarjeta.AMERICANEXPRESS;
+            }
+            if((TarjetaNum[0]=='5'|| TarjetaNum[1]=='1')||(TarjetaNum[0]=='5'||TarjetaNum[1]=='2')||(TarjetaNum[0]=='5'|| TarjetaNum[1]=='3')||(TarjetaNum[0]=='5'||TarjetaNum[1]=='4')||(TarjetaNum[0]=='5'|| TarjetaNum[1]=='5')){
+                opc=TipoTarjeta.MASTERCARD;
+            }
+            if((TarjetaNum[0]=='4')){
+                opc=TipoTarjeta.VISA;
+            }
+            return opc;
+        
         }
 
 
